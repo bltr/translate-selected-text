@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+text=$(xsel -o | sed "s/[\"'<>\n]//g" | tr "\n" ' ')
+
+if [ -z $text ]
+then
+	exit
+fi
+
+translate=$(wget -U "Mozilla/5.0" -qO - "http://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ru&dt=t&q=$text" | awk -F'"' 'NR==1{print $2}')
+wget -q -U Mozilla -O /tmp/translate.mp3 "http://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=32&client=tw-ob&q=$text&tl=En-us"
+
+echo $translate > /tmp/notitrans
+mplayer -speed 0.9 /tmp/translate.mp3
+zenity --text-info --title="Translation" --filename=/tmp/notitrans
+mplayer -speed 0.8 /tmp/translate.mp3
